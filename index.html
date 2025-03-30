@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Entry Center</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            touch-action: manipulation;
+        }
+
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            z-index: 10;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3.5rem;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+            margin: 0;
+            padding: 20px;
+            letter-spacing: 2px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #fff, 0 0 20px #fff; }
+            to { text-shadow: 0 0 15px #fff, 0 0 25px #fff, 0 0 30px #6a11cb; }
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+            z-index: 10;
+            align-items: center;
+        }
+
+        .circle-btn {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .circle-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+            border-radius: 50%;
+        }
+
+        .circle-btn:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        }
+
+        .circle-btn:active {
+            transform: scale(0.95) rotate(0deg);
+        }
+
+        .circle-btn:active::before {
+            transform: scale(1);
+            opacity: 0;
+        }
+
+        .circle-btn:nth-child(1) {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+        }
+
+        .circle-btn:nth-child(2) {
+            background: linear-gradient(45deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .circle-btn:nth-child(3) {
+            background: linear-gradient(45deg, #f12711 0%, #f5af19 100%);
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            background-color: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: float 15s infinite linear;
+        }
+
+        /* Gesture trail effect */
+        .gesture-trail {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            pointer-events: none;
+            z-index: 2;
+            transform: translate(-50%, -50%) scale(0);
+            animation: trailFade 0.8s forwards;
+        }
+
+        @keyframes trailFade {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* Ripple effect */
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* Pulse animation for buttons */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DATA ENTRY CENTER</h1>
+    </div>
+
+    <div class="button-container">
+        <button class="circle-btn pulse">Running Projects</button>
+        <button class="circle-btn">Complete Projects</button>
+        <button class="circle-btn" id="holdProjectsBtn">Hold Projects</button>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const colors = ['rgba(255,255,255,0.7)', 'rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)'];
+            
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random properties
+                const size = Math.random() * 15 + 5;
+                const posX = Math.random() * window.innerWidth;
+                const posY = Math.random() * window.innerHeight;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Apply properties
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}px`;
+                particle.style.top = `${posY}px`;
+                particle.style.backgroundColor = color;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                // Random movement
+                const moveX1 = Math.random() * 100 - 50;
+                const moveY1 = Math.random() * 100 - 50;
+                const moveX2 = Math.random() * 100 - 50;
+                const moveY2 = Math.random() * 100 - 50;
+                
+                particle.style.animationName = `float-${i}`;
+                
+                // Create unique animation for each particle
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes float-${i} {
+                        0% { transform: translate(0, 0) rotate(0deg); }
+                        25% { transform: translate(${moveX1}px, ${moveY1}px) rotate(90deg); }
+                        50% { transform: translate(${moveX2}px, ${moveY2}px) rotate(180deg); }
+                        75% { transform: translate(${-moveX1}px, ${-moveY1}px) rotate(270deg); }
+                        100% { transform: translate(0, 0) rotate(360deg); }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                document.body.appendChild(particle);
+            }
+        }
+        
+        // Gesture trail effect
+        let lastX = 0;
+        let lastY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            // Throttle trail creation
+            const dist = Math.sqrt(Math.pow(e.clientX - lastX, 2) + Math.pow(e.clientY - lastY, 2));
+            if (dist < 30) return;
+            
+            lastX = e.clientX;
+            lastY = e.clientY;
+            
+            const trail = document.createElement('div');
+            trail.className = 'gesture-trail';
+            trail.style.left = `${e.clientX}px`;
+            trail.style.top = `${e.clientY}px`;
+            
+            // Random size
+            const size = Math.random() * 20 + 10;
+            trail.style.width = `${size}px`;
+            trail.style.height = `${size}px`;
+            
+            document.body.appendChild(trail);
+            
+            // Remove trail after animation
+            setTimeout(() => {
+                trail.remove();
+            }, 800);
+        });
+        
+        // Button ripple effect
+        document.querySelectorAll('.circle-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Create ripple
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.backgroundColor = 'rgba(255,255,255,0.4)';
+                ripple.style.transform = 'translate(-50%, -50%) scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.pointerEvents = 'none';
+                
+                // Size based on button size
+                const size = Math.max(this.offsetWidth, this.offsetHeight) * 1.5;
+                ripple.style.width = `${size}px`;
+                ripple.style.height = `${size}px`;
+                
+                this.appendChild(ripple);
+                
+                // Position ripple
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = `${e.clientX - rect.left}px`;
+                ripple.style.top = `${e.clientY - rect.top}px`;
+                
+                // Remove ripple after animation
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Touch support
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const trail = document.createElement('div');
+            trail.className = 'gesture-trail';
+            trail.style.left = `${touch.clientX}px`;
+            trail.style.top = `${touch.clientY}px`;
+            
+            document.body.appendChild(trail);
+            
+            setTimeout(() => {
+                trail.remove();
+            }, 800);
+        }, { passive: false });
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            createParticles();
+            
+            // Add pulse animation to first button
+            setInterval(() => {
+                document.querySelector('.pulse').classList.toggle('pulse');
+                setTimeout(() => {
+                    document.querySelector('.pulse').classList.toggle('pulse');
+                }, 100);
+            }, 2000);
+        });
+// Step 1: Hold Projects बटन को पकड़ो
+const holdBtn = document.getElementById('holdProjectsBtn');
+
+// Step 2: क्लिक करने पर क्या होगा?
+holdBtn.addEventListener('click', function() {
+    // Step 3: 0.5 सेकंड का एनिमेशन दिखाओ
+    setTimeout(() => {
+        // Step 4: नए पेज पर जाओ
+        window.location.href = "index2.html";
+    }, 500);
+});
+    </script>
+</body>
+</html>
